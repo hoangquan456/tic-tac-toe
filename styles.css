@@ -1,0 +1,24 @@
+.board {
+    display: inline-grid;
+    grid-template-columns: repeat(3, 20vh);
+    grid-template-rows: repeat(3, 20vh);
+}
+
+.cell {
+    background-color: aqua;
+    font-size: 3rem;
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    padding: 0px;
+    margin: 0px;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+* {
+    box-sizing: border-box;
+}
