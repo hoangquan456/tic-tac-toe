@@ -29,6 +29,7 @@ function gameBoard() {
 function gameController() {
     const board = gameBoard(); 
     let activePlayer = 1; 
+    let winner = -1; 
 
     function printNewRound() {
         console.log(`player ${activePlayer}'s turn`);
@@ -38,7 +39,7 @@ function gameController() {
     function playRound(row, col) {
         if (board.modify(row, col, activePlayer)) {
             if (checkWinner(row, col, activePlayer) == activePlayer) {
-                console.log(`${activePlayer} wins`);
+                winner = activePlayer;
             }
             activePlayer = 3 - activePlayer; //just switching between players 
         }
@@ -96,15 +97,62 @@ function gameController() {
         return -1; 
     }
 
-    printNewRound();
+    let getWinner = () => winner; 
+    let getActivePlayer = () => activePlayer; 
 
-    return {playRound, getBoard: board.getBoard()}; 
+    // printNewRound();
+
+    return {playRound, getBoard: board.getBoard, getWinner, getActivePlayer}; 
 }
 
 
 function screenController() {
     let game = gameController(); 
+    let boardDiv = document.querySelector(".board");
+    let player = document.querySelector(".player"); 
+    let dialog = document.querySelector("dialog");
+
     function render() {
-        
+        boardDiv.textContent = ""; //clear the board;
+        player.textContent = `Player ${game.getActivePlayer()}'s turn`;
+        let board = game.getBoard();
+        for(let i = 0; i < 3; ++i) {
+            for(let j = 0; j < 3; ++j) {
+                let cell = document.createElement("button"); 
+                cell.classList.add("cell"); 
+                cell.dataset.row = i; 
+                cell.dataset.col = j; 
+                if (board[i][j] == 1) cell.innerText = "X";
+                else if (board[i][j] == 2) cell.innerText = "O";
+                boardDiv.appendChild(cell);
+            }
+        }
     }
+
+    function clickHandler(event) {
+        // console.log([event.target.dataset.row, event.target.dataset.col]);
+        
+        game.playRound(+event.target.dataset.row, +event.target.dataset.col);
+        render();
+        if (game.getWinner() != -1) {
+            let info = document.querySelector(".info"); 
+            info.textContent = `Congratulations! Player ${game.getWinner()} wins!`
+            dialog.showModal();
+        }
+    }
+
+    function closeDialog() {
+        let close = document.querySelector(".close");
+        close.addEventListener("click", ()=>{
+            dialog.close();
+            game = gameController();
+            render();
+        });
+    }
+    boardDiv.addEventListener("click", clickHandler);
+
+    render(); 
+    closeDialog();
 }
+
+screenController();
